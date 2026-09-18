@@ -1,0 +1,14 @@
+# Exact direct dependencies for reproducible Milestone 1 development installs.
+# Regenerate with the selected Python lock tool when Python is available locally.
+aiosqlite==0.21.0
+alembic==1.16.5
+fastapi==0.116.1
+hatchling==1.27.0
+httpx==0.28.1
+mypy==1.17.1
+pydantic-settings==2.10.1
+pytest==8.4.1
+pytest-asyncio==1.1.0
+ruff==0.12.11
+sqlalchemy[asyncio]==2.0.43
+uvicorn[standard]==0.35.0
