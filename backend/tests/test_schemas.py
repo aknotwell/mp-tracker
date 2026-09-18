@@ -11,14 +11,13 @@ from app.schemas.collection import CollectionItemCreate
 from app.schemas.rating import ItemAttributeRatingUpsert
 
 
-def test_collection_create_rejects_invalid_remaining_volume() -> None:
-    with pytest.raises(ValidationError):
-        CollectionItemCreate(
-            fragrance_id=uuid.uuid4(),
-            ownership_status=OwnershipStatus.DECANT,
-            volume_ml_total=Decimal("5.00"),
-            volume_ml_remaining=Decimal("6.00"),
-        )
+def test_collection_create_needs_only_fragrance_and_ownership_type() -> None:
+    request = CollectionItemCreate(
+        fragrance_id=uuid.uuid4(),
+        ownership_status=OwnershipStatus.DECANT,
+    )
+
+    assert request.ownership_status is OwnershipStatus.DECANT
 
 
 def test_collection_create_rejects_server_owned_elo() -> None:
@@ -26,8 +25,6 @@ def test_collection_create_rejects_server_owned_elo() -> None:
         CollectionItemCreate(
             fragrance_id=uuid.uuid4(),
             ownership_status=OwnershipStatus.FULL_BOTTLE,
-            volume_ml_total=Decimal("100.00"),
-            volume_ml_remaining=Decimal("100.00"),
             elo_score=Decimal("9000"),
         )
 

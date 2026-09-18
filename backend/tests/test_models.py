@@ -5,7 +5,6 @@ from decimal import Decimal
 
 import pytest
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.models import (
@@ -53,8 +52,6 @@ async def test_full_collection_graph_round_trip(session: AsyncSession) -> None:
         user=user,
         fragrance=fragrance,
         ownership_status=OwnershipStatus.FULL_BOTTLE,
-        volume_ml_total=Decimal("100.00"),
-        volume_ml_remaining=Decimal("75.50"),
     )
     item.rating = ItemAttributeRating(
         dna_accuracy=8,
@@ -69,29 +66,6 @@ async def test_full_collection_graph_round_trip(session: AsyncSession) -> None:
     assert stored_item is not None
     assert stored_item.elo_score == Decimal("1000.0000")
     assert stored_item.comparisons_count == 0
-
-
-async def test_volume_remaining_cannot_exceed_total(session: AsyncSession) -> None:
-    """The database enforces volume invariants even if API validation is bypassed."""
-
-    user = User(google_subject="google-volume-456", email="volume@example.com")
-    fragrance = Fragrance(
-        name="Volume Test",
-        house=House(name="Volume House"),
-        data_source=DataSource.OFFICIAL_SITE,
-    )
-    session.add(
-        UserCollectionItem(
-            user=user,
-            fragrance=fragrance,
-            ownership_status=OwnershipStatus.DECANT,
-            volume_ml_total=Decimal("5.00"),
-            volume_ml_remaining=Decimal("6.00"),
-        )
-    )
-
-    with pytest.raises(IntegrityError):
-        await session.commit()
 
 
 def test_all_expected_tables_are_registered() -> None:
@@ -109,6 +83,16 @@ def test_all_expected_tables_are_registered() -> None:
         "item_attribute_ratings",
         "head_to_head_matchups",
     }
+
+
+def test_collection_item_tracks_type_without_volume() -> None:
+    """Ownership records distinguish bottles and decants without tracking milliliters."""
+
+    columns = Base.metadata.tables[UserCollectionItem.__tablename__].columns
+
+    assert "ownership_status" in columns
+    assert "volume_ml_total" not in columns
+    assert "volume_ml_remaining" not in columns
 
 
 def test_user_stores_google_identity_without_password_data() -> None:

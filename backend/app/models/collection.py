@@ -23,12 +23,6 @@ class UserCollectionItem(UUIDPrimaryKeyMixin, TimestampMixin, Base):
 
     __tablename__ = "user_collection_items"
     __table_args__ = (
-        CheckConstraint("volume_ml_total > 0", name="total_volume_positive"),
-        CheckConstraint("volume_ml_remaining >= 0", name="remaining_volume_nonnegative"),
-        CheckConstraint(
-            "volume_ml_remaining <= volume_ml_total",
-            name="remaining_volume_not_above_total",
-        ),
         CheckConstraint("comparisons_count >= 0", name="comparisons_count_nonnegative"),
         Index("ix_collection_user_created", "user_id", "created_at"),
         Index("ix_collection_user_elo", "user_id", "elo_score"),
@@ -49,8 +43,6 @@ class UserCollectionItem(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         database_enum(OwnershipStatus, name="ownership_status"),
         nullable=False,
     )
-    volume_ml_total: Mapped[Decimal] = mapped_column(Numeric(8, 2), nullable=False)
-    volume_ml_remaining: Mapped[Decimal] = mapped_column(Numeric(8, 2), nullable=False)
     elo_score: Mapped[Decimal] = mapped_column(
         Numeric(10, 4),
         nullable=False,

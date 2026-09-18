@@ -49,7 +49,7 @@ def test_upgrade_downgrade_and_reupgrade(tmp_path: Path) -> None:
 
     with sqlite3.connect(database_path) as connection:
         version = connection.execute("SELECT version_num FROM alembic_version").fetchone()
-    assert version == ("0003_add_oidc_login_attempts",)
+    assert version == ("0004_remove_collection_volumes",)
 
     # Model metadata and the migration history must describe the same schema.
     command.check(config)
@@ -61,8 +61,8 @@ def test_upgrade_downgrade_and_reupgrade(tmp_path: Path) -> None:
     assert sqlite_tables(database_path) >= EXPECTED_APPLICATION_TABLES
 
 
-def test_migrated_database_enforces_collection_volume_constraint(tmp_path: Path) -> None:
-    """The migration installs important constraints rather than only table names."""
+def test_migrated_database_uses_google_identity_and_ownership_type(tmp_path: Path) -> None:
+    """The final schema contains the approved identity and collection fields."""
 
     database_path = tmp_path / "constraint_test.sqlite3"
     command.upgrade(alembic_config(database_path), "head")
@@ -79,4 +79,6 @@ def test_migrated_database_enforces_collection_volume_constraint(tmp_path: Path)
     assert "google_subject" in users_sql[0]
     assert "password_hash" not in users_sql[0]
     assert collection_sql is not None
-    assert "volume_ml_remaining <= volume_ml_total" in collection_sql[0]
+    assert "ownership_status" in collection_sql[0]
+    assert "volume_ml_total" not in collection_sql[0]
+    assert "volume_ml_remaining" not in collection_sql[0]
