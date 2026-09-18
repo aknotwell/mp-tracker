@@ -4,8 +4,7 @@ These choices are implemented in SQLAlchemy metadata but remain changeable witho
 
 - Collection items use UUID primary keys and may repeat the same user/fragrance/ownership combination. Each physical bottle or decant ranks independently.
 - Users authenticate only through Google OpenID Connect. The user table stores Google's stable `sub` claim as `google_subject`, the current verified email for display/administration, and `is_admin`; it stores no password data. Login identity is matched by `google_subject`, never by email.
-- Volumes use `NUMERIC(8, 2)`. Total volume must be positive; remaining volume may be zero and cannot exceed total volume.
-- Depleted items remain stored. Matchup and leaderboard eligibility is query behavior for Milestone 6, not a status column.
+- Collection items store only whether the user owns a full bottle or decant. Container volume and remaining volume are not tracked.
 - Attribute ratings are optional one-to-one records. If a rating exists, all three fields are required.
 - Elo uses `NUMERIC(10, 4)` and starts at `1000.0000`. The exact K-factor policy remains a Milestone 5 decision.
 - A scored matchup has exactly two different participants and one winner. Skipping a displayed pair does not create a scored matchup. Tie support is not included.

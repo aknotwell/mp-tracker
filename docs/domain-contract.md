@@ -18,7 +18,7 @@ This document establishes the shared API conventions. The former Milestone 1 pro
       "code": "validation_error",
       "message": "Request validation failed.",
       "details": [
-        { "field": "volume_ml_remaining", "message": "Must be zero or greater." }
+        { "field": "ownership_status", "message": "Must be full_bottle or decant." }
       ]
     }
   }
@@ -44,9 +44,8 @@ Use offset pagination for the initial API: `limit` defaults to 25 and is capped 
 - Every user-owned resource is scoped to its owner on the server. A client-supplied user ID never grants access.
 - Regular users cannot create or edit catalog records.
 - Fragrances are created only by an automated scraper. An admin may edit an existing row to correct scraper errors but cannot manually create one.
-- An item is depleted only when `volume_ml_remaining` is zero. There is no `finished` ownership status.
+- Collection items record only `full_bottle` or `decant`; the application does not track volume or depletion.
 - Allow multiple independently ranked collection items for the same user, fragrance, and ownership status. This supports distinct fresh bottles and aged decants; no uniqueness constraint collapses them.
-- Retain depleted items in collection history and leaderboard history, but exclude them from future Overall Favorites matchup selection by default. Include an explicit UI/API filter to show or hide depleted items. Whether depleted items appear in sorted attribute leaderboards remains a Milestone 6 query decision.
 - Ratings are optional as a whole while an item is unrated. Once created, all three fields are required. Unrated items are omitted from Most Accurate and Best Longevity instead of being sorted last.
 
 ## Ranking boundaries
@@ -62,8 +61,8 @@ Use offset pagination for the initial API: `limit` defaults to 25 and is capped 
 
 Apply these initial eligibility rules:
 
-- Overall Favorites matchup pool: owned by the current user, not depleted, and not deleted/archived. Attribute ratings are not required because favorite is independent of the three rating fields.
-- Overall Favorites leaderboard: all non-deleted items with an Elo score, including items with zero comparisons; depleted visibility is controlled by the decision above.
+- Overall Favorites matchup pool: owned by the current user and not deleted/archived. Attribute ratings are not required because favorite is independent of the three rating fields.
+- Overall Favorites leaderboard: all non-deleted items with an Elo score, including items with zero comparisons.
 - Most Accurate: only items with a complete attribute rating.
 - Best Longevity: only items with a complete attribute rating.
 

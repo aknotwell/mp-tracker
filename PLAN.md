@@ -13,7 +13,7 @@ The decided stack is:
 
 The product model is also fixed unless a conflict is found and explicitly raised:
 
-- Collection ownership is only `full_bottle` or `decant`; there is no sample or finished status. An item is depleted when `volume_ml_remaining` reaches zero.
+- Collection ownership records only whether an item is a `full_bottle` or `decant`; volume and depletion are not tracked.
 - Ratings contain exactly `dna_accuracy`, `longevity`, and `projection`.
 - Elo belongs to an individual collection item, not the underlying fragrance.
 - Head-to-head matchups are an immutable audit log and apply only to Overall Favorites.
@@ -33,7 +33,7 @@ The product model is also fixed unless a conflict is found and explicitly raised
 
 - Backend and frontend project structure, environment/config conventions, dependency locking, linting/formatting/type-checking, and test layout.
 - A concise API/domain contract covering enums, identifiers, timestamps, pagination, validation errors, and ownership/authorization rules.
-- Agreed behavior for depleted items, duplicate ownership records, nullable ratings, and ranking eligibility before those decisions become schema constraints.
+- Agreed behavior for duplicate ownership records, nullable ratings, and ranking eligibility before those decisions become schema constraints.
 - A documented boundary between server state (TanStack Query) and temporary ranking-session state (Zustand).
 
 **Depends on**
@@ -45,7 +45,6 @@ The product model is also fixed unless a conflict is found and explicitly raised
 **Open questions / decisions requiring input**
 
 - May one user own multiple independently ranked collection items for the same fragrance and ownership type? The model strongly suggests yes, but the uniqueness rule must be explicit.
-- Are depleted items (`volume_ml_remaining = 0`) retained in the active collection and eligible for all leaderboards/comparisons, or merely retained in history and excluded from future matchups?
 - Are ratings optional until supplied, and should unrated items be omitted from Most Accurate/Best Longevity rather than sorted last?
 - What API pagination convention is preferred (offset/limit or cursor)?
 
@@ -58,7 +57,6 @@ The product model is also fixed unless a conflict is found and explicitly raised
   - ownership limited to `full_bottle | decant`;
   - `dna_accuracy` and `projection` limited to integers 1–10;
   - longevity limited to `0-2h | 2-4h | 4-6h | 6-8h | 8h+`;
-  - total/remaining volume constraints, including nonnegative remaining volume and remaining volume not exceeding total volume;
   - self-references for clone houses and clone fragrances;
   - Elo and comparison counters stored on each collection item;
   - immutable matchup records sufficient to audit and recompute Elo.
@@ -177,7 +175,7 @@ The product model is also fixed unless a conflict is found and explicitly raised
 - Should selector priority be random-with-weights, least-compared first, uncertainty-based, or a simpler coverage heuristic for version one?
 - May the same pair reappear after a cooldown; if so, should cooldown use number of intervening matchups or elapsed time?
 - What are deterministic secondary sorts for equal accuracy/longevity/Elo (for example Elo, name, creation date, or stable ID)?
-- Confirm unrated/depleted item inclusion rules decided in Milestone 1.
+- Confirm unrated item inclusion rules decided in Milestone 1.
 
 ## Milestone 7 — Frontend application shell and API integration
 
@@ -205,8 +203,8 @@ The product model is also fixed unless a conflict is found and explicitly raised
 **Delivers**
 
 - Catalog browsing/search and fragrance-detail views.
-- Add-to-collection flow limited to `full_bottle` and `decant`, with total/remaining volume capture.
-- Collection list/detail/edit/remove experiences, depletion represented solely by zero remaining volume.
+- Add-to-collection flow limited to choosing `full_bottle` or `decant`, with no volume tracking.
+- Collection list/detail/edit/remove experiences.
 - Rating editor with only the three approved attributes: 1–10 DNA accuracy, one longevity bucket, and 1–10 projection.
 - Optimistic updates only where safe, followed by authoritative query invalidation/refetch.
 - Responsive, keyboard-accessible validation and empty/error states.
@@ -220,7 +218,6 @@ The product model is also fixed unless a conflict is found and explicitly raised
 **Open questions / decisions requiring input**
 
 - Should volume accept decimals, and what display/input precision and units are required?
-- Is the initial `volume_ml_remaining` always equal to total volume, or may a partially used bottle/decant be entered immediately?
 
 ## Milestone 9 — Ranking and leaderboard UI
 
