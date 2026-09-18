@@ -209,6 +209,21 @@ tempCodeRunnerFile.py
 # PyPI configuration file
 .pypirc
 
+# Node / Next.js
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+npm-debug.log*
+
+# Local application data
+*.sqlite
+*.sqlite3
+
+# Editor and operating-system files
+.DS_Store
+Thumbs.db
+
 # Marimo
 marimo/_static/
 marimo/_lsp/
